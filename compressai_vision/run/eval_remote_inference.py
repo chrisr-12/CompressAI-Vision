@@ -52,7 +52,7 @@ from typing import Any
 import hydra
 import pandas as pd
 
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 from tabulate import tabulate
 
 from compressai_vision.config import (
@@ -112,7 +112,7 @@ def title(a):
     return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
 
 
-def print_specs(pipeline, **kwargs):
+def print_specs(conf, pipeline, **kwargs):
     logger = logging.getLogger(__name__)
 
     logger.info(
@@ -141,13 +141,14 @@ def print_specs(pipeline, **kwargs):
                 \n\n\
     "
     )
+    logger.info(f"Full configuration\n{OmegaConf.to_yaml(conf)}\n")
 
 
 @hydra.main(version_base=None, config_path=str(config_path))
 def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
-    print_specs(pipeline, **modules)
+    print_specs(conf, pipeline, **modules)
     timing, eval_encode_type, coded_res, performance = pipeline(**modules)
 
     # pretty output

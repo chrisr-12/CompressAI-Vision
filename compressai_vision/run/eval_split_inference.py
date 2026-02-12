@@ -52,7 +52,7 @@ from typing import Any
 import hydra
 import pandas as pd
 
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 from tabulate import tabulate
 
 from compressai_vision.config import (
@@ -112,7 +112,7 @@ def title(a):
     return str(a.__class__).split("<class '")[-1].split("'>")[0].split(".")[-1]
 
 
-def print_specs(pipeline, **kwargs):
+def print_specs(conf, pipeline, **kwargs):
     logger = logging.getLogger(__name__)
 
     # optional inputs
@@ -153,6 +153,7 @@ def print_specs(pipeline, **kwargs):
                 \n  -- Output file            : {kwargs['evaluator'].output_file_name} \
         "
     info += "\n\n"
+    info += f"Full configuration\n{OmegaConf.to_yaml(conf)}\n"
 
     logger.info(info)
 
@@ -161,7 +162,7 @@ def print_specs(pipeline, **kwargs):
 def main(conf: DictConfig):
     pipeline, modules = setup(conf)
 
-    print_specs(pipeline, **modules)
+    print_specs(conf, pipeline, **modules)
     elap_times, eval_encode_type, coded_res, performance, mac_complexity = pipeline(
         **modules
     )
